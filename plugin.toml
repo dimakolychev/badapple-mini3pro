@@ -1,0 +1,15 @@
+id = "badapple"
+name = "Bad Apple!!"
+version = "1.0.0"
+entry = "bin/badapple"
+description = "Bad Apple!! на LED-часах и кольце Мини 3 Про: клип на сегментах, такты белым, «кхиии» красным."
+permissions = ["exec", "led", "clock"]
+
+[launch]
+kind = "binary"
+mode = "service"
+path = "bin/badapple"
+
+[compatibility]
+models = ["yandexmini_3_pro", "yandexmini"]
+features = []
