@@ -1,5 +1,5 @@
 // badapple player, on the speaker (YAM plugin, started by its service API):
-// plays data/audio.mp3 and draws data/frames.bin on the LED clock and the ring.
+// plays data/audio.mp3 and draws data/frames.bin on the LED clock, the ring and the logo.
 //
 // Before the show: pause the nightlight, mute Alice's microphones, remember what
 // the clock and the ring show. After it (end of song or SIGTERM from "stop"):
@@ -95,8 +95,15 @@ func restore(clock map[string]string) {
 		for i := 0; i < 16; i++ {
 			writeFile(leds+ringName(c, i)+"/trigger", "ledfb-ring")
 		}
+		for i := 0; i < 6; i++ {
+			writeFile(leds+logoName(c, i)+"/brightness", "0")
+			writeFile(leds+logoName(c, i)+"/trigger", "ledfb-logo")
+		}
 	}
 }
+
+// The Alice logo on top: 6 RGB zones, flashes together with the ring.
+func logoName(c string, i int) string { return fmt.Sprintf("pickle:%s:logo%d", c, i) }
 
 // --- nightlight and microphone ------------------------------------------------------
 
@@ -284,9 +291,15 @@ func main() {
 		openLED("pickle:white:clock" + n).set(0)
 	}
 	var ring [3][16]*led
+	var logo [3][6]*led
 	for c := range colors {
 		for i := 0; i < 16; i++ {
 			ring[c][i] = openLED(ringName(colors[c], i))
+		}
+		for i := 0; i < 6; i++ {
+			// Only a 0 write drops Alice's trigger; take the logo explicitly.
+			writeFile(leds+logoName(colors[c], i)+"/trigger", "none")
+			logo[c][i] = openLED(logoName(colors[c], i))
 		}
 	}
 
@@ -341,6 +354,9 @@ func main() {
 		for c := 0; c < 3; c++ {
 			for j := 0; j < 16; j++ {
 				ring[c][j].set(int(r[30+c]))
+			}
+			for j := 0; j < 6; j++ {
+				logo[c][j].set(int(r[30+c]))
 			}
 		}
 	}
